@@ -1,61 +1,72 @@
 class Graph:
-    def __init__(self, G: list[dict[str, int]] = [], directed: bool = True) -> None:
+    def __init__(self, G: list[dict[str, int]] = []) -> None:
         self.G = G
-        self.directed = directed
         self.number_of_vertices = 0
         self.number_of_edges = 0
-
 
     def add_vertex(self) -> None:
         self.G.append(dict())
         self.number_of_vertices += 1
         return
 
-    def add_edge(self, u: int, v: int, w: int = 1, directed: bool = True) -> None:
+    def add_edge(self, u: int, v: int, w: int = 1) -> None:
         """Add an edge between u and v with capacity w, 
         """
         assert(max(u,v) < len(self.G)), f"u ({u}) and v ({v}) should be smaller than the size of G ({len(self.G)}) --> you should add additional vertices to G"
-        if directed:
-            self.G[u][v] = w
-            self.number_of_edges += 1
-        else:
-            self.G[u][v] = w
-            self.G[v][u] = w
-            self.number_of_edges += 2
-        pass
+        self.G[u][v] = w
+        self.G[v][u] = w
+        self.number_of_edges += 2
+        return
 
-    def size():
-        pass
+    def size(self):
+        return self.number_of_vertices
 
-    
     def __str__(self):
         str = ""
         for node, adj in enumerate(self.G):
             str += f"{node}: {adj}\n"
-        
         return str
 
+
+
+class DiGraph(Graph):
+    def __init__(self, G: list[dict[str, int]] = []):
+        super().__init__(G)
+
+    def add_edge(self, u: int, v: int, w: int = 1) -> None:
+        self.G[u][v] = w
+        self.number_of_edges += 1
+        return
+        
 
 
 def main():
     n = 10
 
-    g = Graph()
+    G = Graph()
+    dG = DiGraph()
 
-    g.add_vertex()
+    G.add_vertex()
+    dG.add_vertex()
     for i in range(1, 10):    
-        g.add_vertex()
-        g.add_edge(0, i)
+        G.add_vertex()
+        G.add_edge(i-1, i)
+    
+        dG.add_vertex()
+        dG.add_edge(i-1, i)
     
     
-    
-    
-    
-    print(g)
-    print(g.number_of_vertices)
-    print(g.number_of_edges)
     
 
+    print(G)
+    print(G.number_of_vertices)
+    print(G.number_of_edges)
+    
+    print(dG)
+    print(dG.number_of_vertices)
+    print(dG.number_of_edges)
+    print()
+    
 
 
 
