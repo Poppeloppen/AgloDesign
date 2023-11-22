@@ -1,5 +1,3 @@
-import numpy as np
-from sys import stdin
 
 
 def knapsack_1_0_recursive(weights: list[int], vals: list[int], capacity: int, n: int) -> int:
@@ -42,10 +40,8 @@ def knapsack_1_0_iterative(weights: list[int], vals: list[int], capacity: int, n
     for i in range(1, n+1): #Skipping base cases
         for w in range(1, capacity+1): 
             
-            #Base case (NOTE: this is redundant since base case is already taken care of)
-            #if i == 0 or w == 0:
-            #    M[i][w] = 0
-    
+            #NOTE: base case is already taken care of by initializing first row and column of M as 0's
+            
             #If adding item will exceed capacity of bag, do not pack it
             if weights[i-1] > w:
                 M[i][w] = M[i-1][w]
