@@ -1,3 +1,5 @@
+from typing import Iterator
+
 class Graph:
     def __init__(self, G: list[dict[str, int]] = []) -> None:
         self.G = G
@@ -18,14 +20,20 @@ class Graph:
         self.number_of_edges += 2
         return
 
-    def size(self):
+    def size(self) -> int:
         return self.number_of_vertices
 
-    def __str__(self):
+    def __str__(self) -> str:
         str = ""
         for node, adj in enumerate(self.G):
             str += f"{node}: {adj}\n"
         return str
+    
+    def __iter__(self) -> Iterator[dict[str, int]]:
+        return iter(self.G)
+
+    def __getitem__(self, item: int) -> dict[str, int]:
+        return self.G[item]
 
 
 
