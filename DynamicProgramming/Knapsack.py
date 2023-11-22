@@ -94,16 +94,12 @@ def knapsack_optimal_packing_from_M(M: list[list[int]], weights: list[int], vals
 
 def main():
 
-    C, n = map(int, stdin.readline().split())
+    C = 10
+    n = 5
 
-    all_weights = []
-    all_values = []
-    for i in range(n):
-        value_i, weight_i = map(int, stdin.readline().split())
-        all_values.append(value_i)
-        all_weights.append(weight_i)
-    
-
+    all_values = [5, 4, 10, 3, 7]
+    all_weights = [3, 3, 4, 5, 8]
+ 
     res, M = knapsack_1_0_iterative(weights=all_weights, vals=all_values, capacity=C, n=n)
     res2 = knapsack_1_0_recursive(weights=all_weights, vals=all_values, capacity=C, n=n)
     print(res)
