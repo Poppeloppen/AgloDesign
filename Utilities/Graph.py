@@ -1,7 +1,7 @@
 from typing import Iterator
 
 class Graph:
-    def __init__(self, G: list[dict[str, int]] = []) -> None:
+    def __init__(self, G: list[dict[int, int]] = []) -> None:
         self.G = G
         self.number_of_vertices = 0
         self.number_of_edges = 0
