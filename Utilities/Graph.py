@@ -1,8 +1,8 @@
 from typing import Iterator
 
 class Graph:
-    def __init__(self, G: list[dict[int, int]] = []) -> None:
-        self.G = G
+    def __init__(self, G: list[dict[int, int]] = None) -> None:
+        self.G = G if G is not None else []
         self.number_of_vertices = 0
         self.number_of_edges = 0
 
@@ -38,8 +38,9 @@ class Graph:
 
 
 class DiGraph(Graph):
-    def __init__(self, G: list[dict[str, int]] = []):
+    def __init__(self, G: list[dict[str, int]] = None):
         super().__init__(G)
+        #self.G = G
 
     def add_edge(self, u: int, v: int, w: int = 1) -> None:
         self.G[u][v] = w
@@ -49,32 +50,15 @@ class DiGraph(Graph):
 
 
 def main():
-    n = 10
+    for i in range(10):
+        G = Graph()
 
-    G = Graph()
-    dG = DiGraph()
-
-    G.add_vertex()
-    dG.add_vertex()
-    for i in range(1, 10):    
-        G.add_vertex()
-        G.add_edge(i-1, i)
+        for j in range(2):
+            G.add_vertex()
     
-        dG.add_vertex()
-        dG.add_edge(i-1, i)
-    
-    
-    
-
-    print(G)
-    print(G.number_of_vertices)
-    print(G.number_of_edges)
-    
-    print(dG)
-    print(dG.number_of_vertices)
-    print(dG.number_of_edges)
-    print()
-    
+        print(G.G)
+        
+    return
 
 
 
