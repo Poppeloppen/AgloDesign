@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../")
 from Utilities.Graph import Graph, DiGraph
 
 
@@ -11,9 +13,15 @@ class GraphCreator():
         self.all_edges = None
         self.red_vertices = None
 
+        #mapping from vertex name to vertex number and vice versa
+        self.index_of_vertex = dict()
+        self.vertex_of_index = dict()
+
         self._read_graph_data(file_path)
 
         self.G = self._create_graph_object()
+        self.add_vertices()
+        self.add_edges()
 
 
     def _read_graph_data(self, file_path: str) -> None:
@@ -44,6 +52,30 @@ class GraphCreator():
         return G
     
 
+    def add_vertices(self):
+        """Add all vertices to graph"""
+        for vertex_idx, vertex_name in enumerate(self.all_vertices):
+            self.G.add_vertex()
+            self.index_of_vertex[vertex_name] = vertex_idx
+            self.vertex_of_index[vertex_idx] = vertex_name
+
+        return
+
+
+    def add_edges(self) -> None:
+        """Add all edges to the graph"""
+        
+        for edge in self.all_edges:
+            vertex_from, _, vertex_to = edge.split()             
+            vertex_from_idx = self.index_of_vertex[vertex_from]
+            vertex_to_idx = self.index_of_vertex[vertex_to]
+
+            self.G.add_edge(u=vertex_from_idx, 
+                            v=vertex_to_idx)
+                        
+        return
+
+
 
 
 class NoneGraphCreator(GraphCreator):
@@ -51,8 +83,8 @@ class NoneGraphCreator(GraphCreator):
         super().__init__(file_path)
         
         #mapping from vertex name to vertex number and vice versa
-        self.index_of_vertex = dict()
-        self.vertex_of_index = dict()
+        #self.index_of_vertex = dict()
+        #self.vertex_of_index = dict()
 
         self.add_vertices()
         self.add_edges()
@@ -62,14 +94,13 @@ class NoneGraphCreator(GraphCreator):
 
 
     def _valid_vertex(self, vertex_name: str) -> bool:
-        """Returns true if a vertex is either black or is the source or target vertex."""
+        """Returns true if a vertex is either non-red or is the source or target vertex."""
         if vertex_name in {self.source, self.target} or (self.is_vertex_red[vertex_name] == 0):
             return True
         
         return False
 
 
-    #TODO: Ensure that source and target vertex is always added
     def add_vertices(self):
         """Add all non-red vertices to graph"""
         
@@ -90,7 +121,7 @@ class NoneGraphCreator(GraphCreator):
         for edge in self.all_edges:
             vertex_from, _, vertex_to = edge.split()         
 
-            #Ensure that neither vertex is red
+            #Check both vertices
             if self._valid_vertex(vertex_from) and self._valid_vertex(vertex_to):
 
                 vertex_from_idx = self.index_of_vertex[vertex_from]
@@ -103,15 +134,60 @@ class NoneGraphCreator(GraphCreator):
 
     
 
+class AlternateGraphCreator(GraphCreator):
+    def __init__(self, file_path: str) -> None:
+        super().__init__(file_path)
+
+        #self.index_of_vertex = dict()
+        #self.vertex_of_index = dict()
+
+        self.add_vertices()
+        self.add_edges()
+
+        self.source_idx = self.index_of_vertex[self.source]
+        self.target_idx = self.index_of_vertex[self.target]
+
+
+    def _different_color(self, vertex1: str, vertex2: str) -> bool:
+        """True if vertex1 and vertex2 have different colors?"""
+        return not (self.is_vertex_red[vertex1] == self.is_vertex_red[vertex2])
+
+    #TODO: I'm pretty sure this is redundant since the exact same method is part of parent
+    def add_vertices(self):
+        """Add all vertices to graph"""
+        for vertex_idx, vertex_name in enumerate(self.all_vertices):
+            self.G.add_vertex()
+            
+            self.index_of_vertex[vertex_name] = vertex_idx
+            self.vertex_of_index[vertex_idx] = vertex_name
+
+        return
+
+    def add_edges(self) -> None:
+        """Only add edges between vertices of different color"""
+        
+        for edge in self.all_edges:
+            vertex_from, _, vertex_to = edge.split()         
+
+            #Check both vertices
+            if self._different_color(vertex_from, vertex_to):
+                vertex_from_idx = self.index_of_vertex[vertex_from]
+                vertex_to_idx = self.index_of_vertex[vertex_to]
+
+                self.G.add_edge(u=vertex_from_idx, 
+                                v=vertex_to_idx)
+                        
+        return
+
 
 
 def main():
     grap_files = ["G-ex.txt",
-                #"grid-5-0.txt",
-                #"increase-n8-1.txt",
-                #"P3.txt",
-                #"rusty-1-17.txt",
-                #"ski-illustration.txt",
+                "grid-5-0.txt",
+                "increase-n8-1.txt",
+                "P3.txt",
+                "rusty-1-17.txt",
+                "ski-illustration.txt",
                 #"wall-n-10000.txt"
                 ]
 
@@ -123,21 +199,16 @@ def main():
         #print(G.all_vertices)
         #print(G.red_vertices)
 
-        G_none = NoneGraphCreator(path)
-        G_none.add_vertices()
-        print(G_none.G)
+        #G_none = NoneGraphCreator(path)
+        #G_none.add_vertices()
+        #G_none.add_edges()
 
+        G_alt = AlternateGraphCreator(path)
+        #G_alt.add_vertices()
+        print(G_alt.G)
+        print(G_alt.index_of_vertex)
+        #print(G_alt.vertex_of_index)
 
-        G_none.add_edges()
-        print(G_none.G)
-        print(G_none.vertex_of_index)
-        #print(G_none.all_vertices)
-        #print(G_none.red_vertices)
-        #print(G_none.all_edges)
-        #print(type(G_none))
-        #print(type(G_none.G))
-        #G, v_to_i, i_to_v, s, t = ReadGraphExample(path)
-        #print(len(G.G))
         print()
     return
 
