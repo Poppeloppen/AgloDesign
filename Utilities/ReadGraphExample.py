@@ -1,75 +1,143 @@
-from Graph import Graph, DiGraph
+from Utilities.Graph import Graph, DiGraph
 
-def ReadGraphExample(file_path: str) -> tuple[Graph, dict[str, int], dict[int, str], int, int]:
-    """Read Graph examples and returns Graph (or DiGraph)
-    The example files have the following structure:
-    n, m
-    s, t
-    <vertices> #list of size n (new line per entry)
-    <edges> #list of size m (new line per entry)
-    """
 
-    with open(file_path, "r") as f:
-        number_of_vertices, number_of_edges = map(int, f.readline().split())
-        source, target = map(str, f.readline().split())
+class GraphCreator():
+    def __init__(self, file_path: str) -> None:
+        self.number_of_vertices = None
+        self.number_of_edges = None
+        self.source = None
+        self.target = None
+        self.all_vertices = None
+        self.all_edges = None
+        self.red_vertices = None
 
-        all_vertices = [f.readline().strip() for _ in range(number_of_vertices)]
+        self._read_graph_data(file_path)
 
-        all_edges = [edge.strip() for edge in f]
+        self.G = self._create_graph_object()
+
+
+    def _read_graph_data(self, file_path: str) -> None:
+        
+        with open(file_path, "r") as f:
+            self.number_of_vertices, self.number_of_edges, self.cardinality = map(int, f.readline().split())
+            self.source, self.target = map(str, f.readline().split())
+
+            all_vertix_data = [f.readline().strip().split() for _ in range(self.number_of_vertices)]
+            self.all_vertices = [v[0] for v in all_vertix_data]
+            self.red_vertices = [0 if v[-1] != '*' else 1 for v in all_vertix_data]
+            
+            #Dictionary with vertex name as key and value of 1 if the vertex is red, otherwise 0
+            self.is_vertex_red = {v[0]:(0 if v[-1] != '*' else 1) for v in all_vertix_data}
+
+            self.all_edges = [edge.strip() for edge in f]
+        
+        return
+
+
+    def _create_graph_object(self) -> Graph:
+        #check if graph is directed
+        if ">" in self.all_edges[0]:
+            G = DiGraph() 
+        else:
+            G = Graph()
+        
+        return G
+    
+
+
+
+class NoneGraphCreator(GraphCreator):
+    def __init__(self, file_path: str) -> None:
+        super().__init__(file_path)
+        
+        #mapping from vertex name to vertex number and vice versa
+        self.index_of_vertex = dict()
+        self.vertex_of_index = dict()
+
+        self.add_vertices()
+        self.add_edges()
+
+        self.source_idx = self.index_of_vertex[self.source]
+        self.target_idx = self.index_of_vertex[self.target]
+
+
+    def _valid_vertex(self, vertex_name: str) -> bool:
+        """Returns true if a vertex is either black or is the source or target vertex."""
+        if vertex_name in {self.source, self.target} or (self.is_vertex_red[vertex_name] == 0):
+            return True
+        
+        return False
+
+
+    #TODO: Ensure that source and target vertex is always added
+    def add_vertices(self):
+        """Add all non-red vertices to graph"""
+        
+        vertex_idx = 0
+        for vertex_name in self.all_vertices:
+            if self._valid_vertex(vertex_name):
+                self.G.add_vertex()
+                
+                self.index_of_vertex[vertex_name] = vertex_idx
+                self.vertex_of_index[vertex_idx] = vertex_name
+                vertex_idx += 1
+
+        return
+    
+
+    def add_edges(self):
+        """Create edges between non-red vertices"""
+        for edge in self.all_edges:
+            vertex_from, _, vertex_to = edge.split()         
+
+            #Ensure that neither vertex is red
+            if self._valid_vertex(vertex_from) and self._valid_vertex(vertex_to):
+
+                vertex_from_idx = self.index_of_vertex[vertex_from]
+                vertex_to_idx = self.index_of_vertex[vertex_to]
+
+                self.G.add_edge(u=vertex_from_idx, 
+                                v=vertex_to_idx)
+                        
+        return
 
     
-    
-    #mapping from vertex name to vertex number and vice versa
-    index_of_vertex = {}
-    vertex_of_index = {}
 
-    #check if graph is directed
-    if ">" in all_edges[0]:
-        G = DiGraph() 
-    else:
-        G = Graph()
-    
-    #Add vertices to graph
-    for vertex_number, vertex_name in enumerate(all_vertices):
-        G.add_vertex()
-
-        index_of_vertex[vertex_name] = vertex_number
-        vertex_of_index[vertex_number] = vertex_name
-    
-
-    
-    #Add edges
-    for edge in all_edges:
-        vertex_from, _, vertex_to = edge.split()
-
-        G.add_edge(u=index_of_vertex[vertex_from], 
-                    v=index_of_vertex[vertex_to])
-    
-    return G, index_of_vertex, vertex_of_index, source, target
 
 
 def main():
     grap_files = ["G-ex.txt",
-                "grid-5-0.txt",
-                "increase-n8-1.txt",
-                "P3.txt",
-                "rusty-1-17.txt",
-                "ski-illustration.txt"
+                #"grid-5-0.txt",
+                #"increase-n8-1.txt",
+                #"P3.txt",
+                #"rusty-1-17.txt",
+                #"ski-illustration.txt",
+                #"wall-n-10000.txt"
                 ]
 
     for file_name in grap_files:
-    #for file_name in [grap_files[-1]]:
         print(file_name)
         path = f"../data/Graphs/{file_name}"
 
-        #G = ReadGraphExample(path)
-        G, v_to_i, i_to_v, s, t = ReadGraphExample(path)
+        #G = GraphCreator(path)
+        #print(G.all_vertices)
+        #print(G.red_vertices)
 
-        print(len(G.G))
-        print(G)
-        #print(f"vertex to name: {v_to_i}")
-        #print(f"name to vertex: {i_to_v}")
-        #print(f"source: {s}, target: {t}")
+        G_none = NoneGraphCreator(path)
+        G_none.add_vertices()
+        print(G_none.G)
+
+
+        G_none.add_edges()
+        print(G_none.G)
+        print(G_none.vertex_of_index)
+        #print(G_none.all_vertices)
+        #print(G_none.red_vertices)
+        #print(G_none.all_edges)
+        #print(type(G_none))
+        #print(type(G_none.G))
+        #G, v_to_i, i_to_v, s, t = ReadGraphExample(path)
+        #print(len(G.G))
         print()
     return
 
