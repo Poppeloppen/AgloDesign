@@ -3,8 +3,6 @@ from typing import Optional
 import sys
 sys.path.append("../")
 from Utilities.Graph import Graph, DiGraph
-from DynamicProgramming.Fibonacci import fibonacci_iterative
-
 
 
 class BFS:
@@ -22,13 +20,14 @@ class BFS:
 
 
     def _bfs(self, G: Graph, source: int, target: Optional[int]) -> None:
+        assert target < self.number_of_vertices, f"the specified target ({target}) should be smaller than size of G ({self.number_of_vertices})"
         #Always start BFS from the provided source
         self._discovered[source] = True
         self._dist_to[source] = 0
         queue = [source]
 
         while queue:
-            current_node = queue.pop(0)
+            current_node = queue.pop(0) #pop first element
 
             #Go through all the (not already visited) neighbours of the current node one by one (and store relevant info)
             for neighbour in G[current_node].keys():
@@ -85,12 +84,8 @@ def main():
         #dG.add_edge(i-1, i)
     
 
-    #print(G)
-    #print(G[2].keys())
-
     bfs = BFS(G, source=10, target=0)
     print(bfs._discovered[:50])
-    #print(bfs.path_to(-10))
     
     return
 
