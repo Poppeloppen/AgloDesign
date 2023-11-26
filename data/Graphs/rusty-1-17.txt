@@ -1,4 +1,4 @@
-17 21
+17 21 1
 begin ender
 rungs
 sings
@@ -9,7 +9,7 @@ rests
 binge
 singe
 rings
-rusty
+rusty *
 rente
 runts
 enter
