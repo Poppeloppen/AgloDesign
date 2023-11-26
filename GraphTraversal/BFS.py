@@ -12,7 +12,7 @@ class BFS:
     """
     def __init__(self, G: Graph, source: int, target: Optional[int] = None) -> None:
         self._discovered = [False] * G.number_of_vertices   #is there a path from s to i?
-        self._dist_to = [float("inf")] * G.number_of_vertices   #what is the dist from s to i?
+        self._dist_to = [-1] * G.number_of_vertices   #what is the dist from s to i?
         self._edge_to = [None] * G.number_of_vertices   #what vertex comes before i in shortest path? 
         self.number_of_vertices = G.number_of_vertices
 
