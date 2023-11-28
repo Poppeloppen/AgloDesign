@@ -1,18 +1,22 @@
+
 from GraphTraversal.BFS import BFS
-from Utilities.ReadGraphExample import NoneGraphCreator, AlternateGraphCreator, GraphCreator
+from Utilities.ReadGraphExample import NoneGraphCreator, AlternateGraphCreator, GraphCreator, FewGraphCreator
 from Utilities.Graph import Graph, DiGraph
 from Utilities.isDag import is_dag
-from DynamicProgramming.DAG_longest_path import dp_longest_path
+from Utilities.Dijkstra import dijkstra
+from Utilities.DP_max_red import dp_max_reds
 
+
+import math
 from typing import Union
 
 
 def none(file_path: str) -> int:
-    none_graph_obj = NoneGraphCreator(file_path)
+    none_data = NoneGraphCreator(file_path)
 
-    G_none = none_graph_obj.G
-    source = none_graph_obj.source_idx
-    target = none_graph_obj.target_idx
+    G_none = none_data.G
+    source = none_data.source_idx
+    target = none_data.target_idx
 
     bfs = BFS(G=G_none, source=source, target=target)
 
@@ -49,18 +53,19 @@ def some(file_path: str) -> Union[bool, str]:
 
 
 def many(file_path: str) -> Union[bool, str]:
-    G_many = GraphCreator(file_path)
-    name_to_idx = G_many.index_of_vertex 
+    many_data = GraphCreator(file_path)
+    name_to_idx = many_data.index_of_vertex 
+    target_idx = name_to_idx[many_data.target]
 
-    target_idx = name_to_idx[G_many.target]
+    many_data.add_edges()
 
-    
     #Only do dp in case of a DAG
-    if is_dag(G_many.G):
+    if is_dag(many_data.G):
+        #TODO: create this type of dict directly in GraphCreator
         #Convert from dict{vertex_name: red_status} to dict{vertex_idx: red_status}
-        red_check = {name_to_idx[vertex_name]:(1 if v == 1 else 0) for vertex_name,v in G_many.is_vertex_red.items()}    
+        red_check = {name_to_idx[vertex_name]:(1 if v == 1 else 0) for vertex_name,v in many_data.is_vertex_red.items()}    
 
-        longest_path = dp_longest_path(G=G_many.G, is_vertex_red=red_check, target=target_idx)
+        longest_path = dp_max_reds(G=many_data.G, is_vertex_red=red_check, target=target_idx)
 
         return longest_path #dp_longest_path(G)
 
@@ -68,11 +73,22 @@ def many(file_path: str) -> Union[bool, str]:
 
 
 def few(file_path: str) -> int:
-    #G = FewGraphCreator()
+    few_data = FewGraphCreator(file_path)
 
-    #res = Dijkstra(G)
+    #Convert from dict{vertex_name: red_status} to dict{vertex_idx: red_status}
+    red_check = {few_data.index_of_vertex[vertex_name]:(1 if v == 1 else 0) for vertex_name,v in few_data.is_vertex_red.items()}    
 
-    return #res
+    source = few_data.source_idx
+    target = few_data.target_idx
+    
+    dist_to_target = dijkstra(G=few_data.G, 
+                                is_vertex_red=red_check,
+                                source=source,
+                                target=target)
+
+    res = math.floor(dist_to_target / 10**7)  # divide by red vertex weight
+
+    return res
 
 
 def alternate(file_path: str) -> bool:
@@ -100,19 +116,20 @@ def main():
                     "P3.txt",
                     "rusty-1-17.txt",
                     "ski-illustration.txt",
-                    #"wall-n-10000.txt"
+                    "wall-n-10000.txt"
                 ]
 
     for file_name in grap_files:
         print(file_name)
         path = f"./data/Graphs/{file_name}"
 
-        #print("none:", none(path)) #DONE 
+        print("none:", none(path)) #DONE 
 
         print("many:", many(path)) #INCOMPLETE
 
-        #print("alternate:", alternate(path)) #DONE
+        print("alternate:", alternate(path)) #DONE
     
+        print("Few:", few(path))
 
 
         print()
